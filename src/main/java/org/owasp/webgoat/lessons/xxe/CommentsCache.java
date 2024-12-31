@@ -22,6 +22,7 @@
 
 package org.owasp.webgoat.lessons.xxe;
 
+import static io.github.pixee.security.XMLInputFactorySecurity.hardenFactory;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import java.io.StringReader;
@@ -86,7 +87,7 @@ public class CommentsCache {
   protected Comment parseXml(String xml, boolean securityEnabled)
       throws XMLStreamException, JAXBException {
     var jc = JAXBContext.newInstance(Comment.class);
-    var xif = XMLInputFactory.newInstance();
+    var xif = hardenFactory(XMLInputFactory.newInstance());
 
     // TODO fix me disabled for now.
     if (securityEnabled) {
