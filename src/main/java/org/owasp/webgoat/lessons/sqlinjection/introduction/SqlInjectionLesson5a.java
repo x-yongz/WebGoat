@@ -22,6 +22,7 @@
 
 package org.owasp.webgoat.lessons.sqlinjection.introduction;
 
+import java.sql.PreparedStatement;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
@@ -63,12 +64,13 @@ public class SqlInjectionLesson5a implements AssignmentEndpoint {
     String query = "";
     try (Connection connection = dataSource.getConnection()) {
       query =
-          "SELECT * FROM user_data WHERE first_name = 'John' and last_name = '" + accountName + "'";
-      try (Statement statement =
-          connection.createStatement(
-              ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-        ResultSet results = statement.executeQuery(query);
+          "SELECT * FROM user_data WHERE first_name = 'John' and last_name = ?";
+      try (PreparedStatement statement =
+          connection.prepareStatement(
+          query,     ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+        statement.setString(1, accountName);
 
+        ResultSet results = statement.execute();
         if ((results != null) && (results.first())) {
           ResultSetMetaData resultsMetaData = results.getMetaData();
           StringBuilder output = new StringBuilder();

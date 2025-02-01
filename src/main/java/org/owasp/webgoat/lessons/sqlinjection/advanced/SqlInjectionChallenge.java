@@ -22,6 +22,7 @@
 
 package org.owasp.webgoat.lessons.sqlinjection.advanced;
 
+import java.sql.PreparedStatement;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.failed;
 import static org.owasp.webgoat.container.assignments.AttackResultBuilder.success;
 
@@ -67,10 +68,11 @@ public class SqlInjectionChallenge implements AssignmentEndpoint {
 
       try (Connection connection = dataSource.getConnection()) {
         String checkUserQuery =
-            "select userid from sql_challenge_users where userid = '" + username_reg + "'";
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(checkUserQuery);
+            "select userid from sql_challenge_users where userid = ?";
+        PreparedStatement statement = connection.prepareStatement(checkUserQuery);
+        statement.setString(1, username_reg);
 
+        ResultSet resultSet = statement.execute();
         if (resultSet.next()) {
           if (username_reg.contains("tom'")) {
             attackResult = success(this).feedback("user.exists").build();
